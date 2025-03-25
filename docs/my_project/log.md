@@ -1,10 +1,10 @@
-## 28.03.2025
+**28.03.2025**
 
 Postęp:
 
 Problemy / kwestie do przedyskutowania:
 
-## 21.03.2025
+**21.03.2025**
 
 Postęp: 
 1. Stworzenie skryptu do pobierania danych ze strony IMGW i zapisywania ich w plikach `.csv`, 
