@@ -1,3 +1,8 @@
+**Tytuł projektu**
+Inteligentna Prognoza Pogody oparta na Uczeniu Maszynowym
+
+Celem projektu jest stworzenie systemu prognozy pogody wykorzystującego uczenie maszynowe i analizę danych historycznych. Model będzie przewidywać warunki atmosferyczne na podstawie zbieranych danych, takich jak temperatura, wilgotność, ciśnienie, opady oraz prędkość wiatru.
+
 **Cel**
 
 Celem projektu jest utworzenie data workflow, działającego w czasie rzeczywistym w którego skład wejdzie kilka etapów, takich jak:

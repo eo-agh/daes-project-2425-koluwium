@@ -1,8 +1,16 @@
+**04.04.2025**
+
+Postęp:
+
+Problemy:
+
+Cele na najbliższy tydzień:
+
 **28.03.2025**
 
 Postęp:
 
-Problemy / kwestie do przedyskutowania:
+Problemy / kwestie do przedyskutowania: Naprawa 
 
 **21.03.2025**
 
