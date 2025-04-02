@@ -8,9 +8,13 @@ Cele na najbliższy tydzień:
 
 **28.03.2025**
 
-Postęp:
+Postęp: 
+1. Stworzenie bazy danych sqlite3 do przechowywania danych
+2. Edycja skryptu do ekstrakcji danych (konwersja sposobu przechowywania z plików csv na bazę)
+3. Zalogowanie się na serwerze, stworzenie na nim środowiska wirtualnego
+4. Uruchomienie skryptu wyciągającego dane z IMGW i zapisującego je do bazy danych co pół godziny
 
-Problemy / kwestie do przedyskutowania: Naprawa 
+Problemy / kwestie do przedyskutowania: brak
 
 **21.03.2025**
 
