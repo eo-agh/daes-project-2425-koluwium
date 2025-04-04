@@ -3,9 +3,10 @@ import sqlite3
 def fetch_all_data_from_db(database_name: str):
     """Pobiera wszystkie dane z tabeli METEO"""
     try:
+        query = "SELECT * FROM METEO"
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
-        cursor.execute("SELECT count(*) FROM METEO")
+        cursor.execute(query)
         rows = cursor.fetchall()
 
         for row in rows:
