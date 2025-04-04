@@ -47,6 +47,6 @@ def load_data(df, table_name, conn):
             'suma_opadu': 'Precipitation_Total',
             'cisnienie': 'Pressure'
         })
-        df.to_sql(table_name, conn, if_exists='replace', index=False)
+        df.to_sql(table_name, conn, if_exists='append', index=False)
     except requests.exceptions.RequestException as e:
         print(f"ERROR in loading data to the database: {e}")

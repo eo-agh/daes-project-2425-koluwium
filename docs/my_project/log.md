@@ -1,10 +1,19 @@
-**04.04.2025**
+**11.04.2025**
 
 Postęp:
 
 Problemy:
 
-Cele na najbliższy tydzień:
+Cele na najbliższy tydzień:..................
+
+**04.04.2025**
+
+Postęp:Naprawa kodu
+
+Problemy: Zły zapis danych - (mała liczbe rekordów)
+Banda debili nadpisywała rekordy
+
+Cele na najbliższy tydzień: Naprawić bazę danych, rozpocząć proces czyszczenia danych i budowa pierwszych modeli
 
 **28.03.2025**
 
