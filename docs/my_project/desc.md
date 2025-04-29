@@ -1,51 +1,57 @@
-**Tytuł projektu**
-Inteligentna Prognoza Pogody oparta na Uczeniu Maszynowym
+# 🌦️ Inteligentna Prognoza Pogody oparta na Uczeniu Maszynowym
 
-Celem projektu jest stworzenie systemu prognozy pogody wykorzystującego uczenie maszynowe i analizę danych historycznych. Model będzie przewidywać warunki atmosferyczne na podstawie zbieranych danych, takich jak temperatura, wilgotność, ciśnienie, opady oraz prędkość wiatru.
+## 📌 Opis projektu
 
-**Cel**
+Projekt ma na celu stworzenie systemu prognozy pogody w czasie rzeczywistym z wykorzystaniem uczenia maszynowego oraz analizy danych historycznych. Model przewiduje warunki atmosferyczne na podstawie zbieranych danych meteorologicznych, takich jak:
 
-Celem projektu jest utworzenie data workflow, działającego w czasie rzeczywistym w którego skład wejdzie kilka etapów, takich jak:
+- temperatura
+- wilgotność względna
+- ciśnienie atmosferyczne
+- opady
+- prędkość i kierunek wiatru
 
-- Pobranie danych meteo z oficjalnej strony IMGW w godzinnych interwałach, zapisanie ich do plików `.csv`
+## 🎯 Cel projektu
 
-- Obróbka danych, preprocessing, przygotowanie do analizy, modelowania, dalszej pracy
+Głównym celem jest zaprojektowanie oraz wdrożenie kompletnego **data workflow**, obejmującego następujące etapy:
 
-- Zapisanie danych do bazy danych
+- ⏬ Automatyczne pobieranie danych meteorologicznych z serwisu **IMGW** w interwałach godzinowych i zapisywanie ich do bazy "sqlite"
+- 🧹 Przetwarzanie, czyszczenie i przygotowanie danych do analizy i modelowania
+- 💾 Zapisanie danych do relacyjnej bazy danych
+- 🧠 Wykorzystanie danych do trenowania modeli predykcyjnych (ML/DL)
+- 📊 Prezentacja wyników poprzez dashboard, raport lub eksport danych
+- ☁️ Możliwość integracji z usługami chmurowymi (np. Azure)
 
-- Wykorzystanie danych w modelowaniu, stworzenie raportu/dashboardu/eksportu
+## 🛠️ Technologie i narzędzia
 
-**Metody**
+| Etap | Narzędzia |
+|------|-----------|
+| Pobieranie danych | `requests`, `json` |
+| Analiza danych | `pandas`, `numpy` |
+| Przechowywanie danych | `SQLite`, `PostgreSQL`, `SQLAlchemy` |
+| Modelowanie | `scikit-learn`, `PyTorch` |
+| Wizualizacja | `matplotlib`, `seaborn`, `Plotly`, `Dash` |
+| Automatyzacja | `cron`, `Airflow` (opcjonalnie) |
+| Kontrola wersji | `Git`, `GitHub` |
+| Chmura (opcjonalnie) | `Azure` |
 
-Najważniejsze metody, na podstawie których projekt zostanie zrealizowany:
+## 🔁 Metodyka
 
-- Automatyzacja procesu pobierania danych za pomocą skryptów Python
+Projekt opiera się na podejściu **ETL (Extract, Transform, Load)** oraz wykorzystuje klasyczne techniki przetwarzania danych i modelowania predykcyjnego. Planowane podejścia:
 
-- Wykorzystanie bibliotek do przetwarzania danych, takich jak Pandas i NumPy, do oczyszczania i analizy danych
+- Automatyzacja pobierania danych (skrypty Python + harmonogram zadań)
+- Transformacja i oczyszczanie danych (handling braków danych, normalizacja, standaryzacja)
+- Budowa modeli ML/DL do prognozy pogody
+- Ewaluacja modeli (RMSE, MAE, accuracy, itp.)
+- Wizualizacja predykcji i integracja z bazą danych lub interfejsem użytkownika
 
-- Przechowywanie danych w relacyjnej bazie danych
+## 🚀 Planowane rozszerzenia
 
-- Wykorzystanie techniki ETL (Etract, Transform, Load)
+- Wykorzystanie prognoz numerycznych jako danych wejściowych (np. GFS, ECMWF)
+- Rozbudowany dashboard z interaktywną mapą
+- Deployment w chmurze (Server AGH)
+- API do udostępniania prognoz ---trochę Sen o Warszawie
 
-- Wykorzystanie popularnych algorytmów uczenia maszynowego/głębokiego do modelowania i przewidywania danych (tworzenia predykcji)
+## 👨‍💻 Autor
+Hałys Filip, Bartosz Staroń, Szymon Trojak
 
-- Wizualizacja wyników w postaci dashboardu przy użyciu narzędzi
-
-- Integracja z chmurą (w zależności od potrzeb) 
-
-
-**Techniczna implementacja**
-
-Planowane technologie do wykorzystania w projekcie (lista może ulec zmianie):
-
-- Analiza, czyszczenie danych, preprocessing (Pandas, NumPy)
-
-- Wyciąganie danych (requests, json)
-
-- Modelowanie (Scikit-learn, PyTorch)
-
-- Kontrola wersji (Github, Git)
-
-- Bazy danych (SQL)
-
-- Cloud (Azure)
+> Projekt realizowany w ramach przedmiotu "Analiza danych w naukach o Ziemi".

@@ -157,6 +157,7 @@ def load_data(df, table_name, conn):
             'suma_opadu': 'Precipitation_Total',
             'cisnienie': 'Pressure'
         })
+<<<<<<< HEAD
 
         df.to_sql(table_name, conn, if_exists='append', index=False)
 
@@ -184,3 +185,8 @@ def load_data(df, table_name, conn):
     except Exception as e:
         print(f"ERROR in loading data to the database: {e}")
 
+=======
+        df.to_sql(table_name, conn, if_exists='append', index=False)
+    except requests.exceptions.RequestException as e:
+        print(f"ERROR in loading data to the database: {e}")
+>>>>>>> 212472f76806b19faed80c5880b5aa3cfac456c9
