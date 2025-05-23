@@ -4,6 +4,9 @@ import time
 import os
 from datetime import datetime
 import sqlite3
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import LocalOutlierFactor
+import numpy as np
 
 
 def create_database(name: str):
@@ -184,3 +187,137 @@ def load_data(df, table_name, conn):
     except Exception as e:
         print(f"ERROR in loading data to the database: {e}")
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
+
+    # Usuń tabelę Grid_Data, jeśli istnieje
+    cursor.execute("DROP TABLE IF EXISTS Grid_Data;")
+    conn.commit()
+
+    # Pobierz najnowszą datę i godzinę
+    cursor.execute("SELECT MAX(Date) FROM METEO")
+    max_date = cursor.fetchone()[0]
+    cursor.execute("SELECT MAX(Hour) FROM METEO WHERE Date = ?", (max_date,))
+    max_hour = cursor.fetchone()[0]
+
+    # Pobierz rekordy z najnowszą datą i godziną
+    query = """
+    SELECT 
+        METEO.Station_Id, 
+        METEO.Station_Name, 
+        METEO.Temperature, 
+        STATIONS.longitude, 
+        STATIONS.latitude
+    FROM METEO
+    JOIN STATIONS ON METEO.Station_Id = STATIONS.Station_Id
+    WHERE METEO.Date = ? AND METEO.Hour = ?
+    AND METEO.Temperature IS NOT NULL
+    """
+    df = pd.read_sql_query(query, conn, params=(max_date, max_hour))
+
+    if df.empty:
+        print("Brak danych najnowszych pomiarów.")
+        conn.close()
+        return
+
+    # Usuwanie outlierów na podstawie temperatury (np. z LocalOutlierFactor)
+    lof = LocalOutlierFactor(n_neighbors=10)
+    outlier_flags = lof.fit_predict(df[['Temperature']])
+    df_clean = df[outlier_flags == 1].reset_index(drop=True)
+
+    if len(df_clean) < 10:
+        print("Za mało punktów po usunięciu outlierów.")
+        conn.close()
+        return
+
+    # Przygotuj dane do modelu
+    X_train = df_clean[['longitude', 'latitude']].values
+    y_train = df_clean['Temperature'].values
+
+    # Stwórz siatkę gridową 
+    lon_min, lon_max = X_train[:,0].min(), X_train[:,0].max()
+    lat_min, lat_max = X_train[:,1].min(), X_train[:,1].max()
+
+    lon_grid = np.arange(lon_min, lon_max + grid_step, grid_step)
+    lat_grid = np.arange(lat_min, lat_max + grid_step, grid_step)
+    grid_points = np.array([[lon, lat] for lat in lat_grid for lon in lon_grid])
+
+    # Trenuj model regresji (Random Forest)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+
+    # Predykcja temperatury na siatce
+    temps_pred = model.predict(grid_points)
+
+    # Stwórz DataFrame wynikowy z gridem i przewidywaniami
+    df_grid = pd.DataFrame({
+        'Longitude': grid_points[:,0],
+        'Latitude': grid_points[:,1],
+        'Date': max_date,
+        'Hour': max_hour,
+        'Temperature': temps_pred
+    })
+
+    # Stwórz tabelę Grid_Data i zapisz wyniki
+    cursor.execute("""
+        CREATE TABLE Grid_Data (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Longitude FLOAT,
+            Latitude FLOAT,
+            Date TEXT,
+            Hour INT,
+            Temperature FLOAT
+        );
+    """)
+    conn.commit()
+
+    df_grid.to_sql('Grid_Data', conn, if_exists='append', index=False)
+
+    print(f"Grid data are created using random forest")
