@@ -13,7 +13,6 @@ def create_database(name: str):
     conn = sqlite3.connect(f'{name}.db')
     cursor = conn.cursor()
     cursor.execute('''
-
         CREATE TABLE IF NOT EXISTS METEO (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Station_Id INT,
@@ -27,39 +26,32 @@ def create_database(name: str):
             Precipitation_Total FLOAT, 
             Pressure FLOAT
         )
-
     ''')
-
     conn.commit()
-
     print(f"Database {name} is created.")
-
     return conn, cursor
-    
-def create_stations_table(database_name: str):
-    """Tworzy tabelę ze stacjami i uzupełnia ją rekordami"""
 
+
+def create_stations_table(database_name: str):
+    """Tworzy tabelę STATIONS i uzupełnia współrzędne stacji."""
     try:
         conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
-        # Tworzenie tabeli STATIONS
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS STATIONS (
                 Station_Id TEXT PRIMARY KEY,
-                station_name TEXT NOT NULL,
+                Station_name TEXT NOT NULL,
                 latitude REAL,
                 longitude REAL
             )
         ''')
 
-        # 2Wstawienie unikatowych stacji z tabeli meteo
         cursor.execute('''
-            INSERT OR IGNORE INTO STATIONS (Station_Id, station_name)
-            SELECT DISTINCT Station_Id, station_name FROM meteo
+            INSERT OR IGNORE INTO STATIONS (Station_Id, Station_name)
+            SELECT DISTINCT Station_Id, Station_Name FROM METEO
         ''')
 
-        # Lista współrzędnych (latitude, longitude) dla każdej stacji
         coordinates = {
             'Białystok': (53.1325, 23.1688),
             'Bielsko Biała': (49.8225, 19.0469),
@@ -96,7 +88,7 @@ def create_stations_table(database_name: str):
             'Opole': (50.6751, 17.9213),
             'Ostrołęka': (53.0842, 21.5758),
             'Piła': (53.1510, 16.7385),
-            'Platforma': (54.5, 18.5),  # ?????????
+            'Platforma': (54.5, 18.5),
             'Płock': (52.5468, 19.7064),
             'Poznań': (52.4064, 16.9252),
             'Przemyśl': (49.7842, 22.7672),
@@ -125,7 +117,6 @@ def create_stations_table(database_name: str):
             'Zielona Góra': (51.9356, 15.5064)
         }
 
-        # Aktualizacja współrzędnych w tabeli STATIONS
         for name, (lat, lon) in coordinates.items():
             cursor.execute('''
                 UPDATE STATIONS
@@ -133,7 +124,6 @@ def create_stations_table(database_name: str):
                 WHERE station_name = ?
             ''', (lat, lon, name))
 
-        # Potwierdzenie zmian i wyświetlenie danych
         conn.commit()
         cursor.execute("SELECT * FROM STATIONS")
         rows = cursor.fetchall()
@@ -143,11 +133,15 @@ def create_stations_table(database_name: str):
         conn.close()
 
     except sqlite3.Error as e:
-        print(f"Błąd podczas pobierania danych z bazy: {e}")
+        print(f"Błąd podczas tworzenia tabeli STATIONS: {e}")
 
-        
+
 def load_data(df, table_name, conn):
     try:
+        if df is None or df.empty:
+            print("Brak danych do załadowania.")
+            return
+
         df = df.rename(columns={
             'id_stacji': 'Station_Id',
             'stacja': 'Station_Name',
@@ -174,80 +168,28 @@ def load_data(df, table_name, conn):
                     GROUP BY Station_Id, Date, Hour
                 );
             """)
-
             cursor.execute(f"DELETE FROM {table_name};")
-
-            cursor.execute(f"""
-                INSERT INTO {table_name}
-                SELECT * FROM {table_name}_deduped;
-            """)
-
+            cursor.execute(f"INSERT INTO {table_name} SELECT * FROM {table_name}_deduped;")
             cursor.execute(f"DROP TABLE {table_name}_deduped;")
 
     except Exception as e:
         print(f"ERROR in loading data to the database: {e}")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
-
-    # Usuń tabelę Grid_Data, jeśli istnieje
     cursor.execute("DROP TABLE IF EXISTS Grid_Data;")
     conn.commit()
 
-    # Pobierz najnowszą datę i godzinę
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='STATIONS'")
+    if cursor.fetchone() is None:
+        print("Tabela STATIONS nie istnieje – uruchom create_stations_table().")
+        return
+
     cursor.execute("SELECT MAX(Date) FROM METEO")
     max_date = cursor.fetchone()[0]
     cursor.execute("SELECT MAX(Hour) FROM METEO WHERE Date = ?", (max_date,))
     max_hour = cursor.fetchone()[0]
 
-    # Pobierz rekordy z najnowszą datą i godziną
     query = """
     SELECT 
         METEO.Station_Id, 
@@ -264,24 +206,19 @@ def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
 
     if df.empty:
         print("Brak danych najnowszych pomiarów.")
-        conn.close()
         return
 
-    # Usuwanie outlierów na podstawie temperatury (np. z LocalOutlierFactor)
     lof = LocalOutlierFactor(n_neighbors=10)
     outlier_flags = lof.fit_predict(df[['Temperature']])
     df_clean = df[outlier_flags == 1].reset_index(drop=True)
 
     if len(df_clean) < 10:
         print("Za mało punktów po usunięciu outlierów.")
-        conn.close()
         return
 
-    # Przygotuj dane do modelu
     X_train = df_clean[['longitude', 'latitude']].values
     y_train = df_clean['Temperature'].values
 
-    # Stwórz siatkę gridową 
     lon_min, lon_max = X_train[:,0].min(), X_train[:,0].max()
     lat_min, lat_max = X_train[:,1].min(), X_train[:,1].max()
 
@@ -289,14 +226,10 @@ def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
     lat_grid = np.arange(lat_min, lat_max + grid_step, grid_step)
     grid_points = np.array([[lon, lat] for lat in lat_grid for lon in lon_grid])
 
-    # Trenuj model regresji (Random Forest)
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-
-    # Predykcja temperatury na siatce
     temps_pred = model.predict(grid_points)
 
-    # Stwórz DataFrame wynikowy z gridem i przewidywaniami
     df_grid = pd.DataFrame({
         'Longitude': grid_points[:,0],
         'Latitude': grid_points[:,1],
@@ -305,7 +238,6 @@ def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
         'Temperature': temps_pred
     })
 
-    # Stwórz tabelę Grid_Data i zapisz wyniki
     cursor.execute("""
         CREATE TABLE Grid_Data (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -319,5 +251,4 @@ def create_grid_data_from_latest(conn, cursor, grid_step=0.5):
     conn.commit()
 
     df_grid.to_sql('Grid_Data', conn, if_exists='append', index=False)
-
-    print(f"Grid data are created using random forest")
+    print(f"Grid data are created using random forest.")

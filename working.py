@@ -1,6 +1,6 @@
 import sqlite3
 
-query = "SELECT count(DISTINCT Station_Id) FROM stations"
+query = "SELECT * FROM stations"
 database_name = 'data.db'
 
 def fetch_all_data_from_db(database_name: str, query: str):
